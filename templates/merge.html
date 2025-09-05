@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block title %}Merge PDF - ZenPDF{% endblock %}
+
+{% block head_styles %}
+<style>
+    .upload-area { border: 2px dashed #e0e0e0; padding: 40px; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
+    .upload-area:hover { background-color: #f8f9fa; }
+    .upload-area.drag-over { background-color: #e9ecef; border-color: #0d6efd; }
+    .upload-area .form-label { display: block; margin-bottom: 0; cursor: pointer; }
+    .upload-area .form-control { display: none; }
+    .file-list { list-style: none; padding: 0; margin-top: 1rem; max-height: 200px; overflow-y: auto; }
+    .file-list-item { 
+        background-color: #f8f9fa; 
+        border: 1px solid #eee; 
+        padding: 0.5rem 1rem; 
+        border-radius: 5px; 
+        margin-bottom: 0.5rem; 
+        font-size: 0.9rem;
+        cursor: grab; /* Add grab cursor to indicate it's movable */
+        display: flex;
+        align-items: center;
+    }
+    .file-list-item:active {
+        cursor: grabbing;
+    }
+    .sortable-ghost { /* Style for the item being dragged */
+        opacity: 0.4;
+        background: #c8ebfb;
+    }
+    .btn-primary { box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3); }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3">Merge PDF Files</h2>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back to Home
+        </a>
+    </div>
+    <p>Upload PDFs, then drag and drop to set the merge order.</p>
+
+    <form action="/merge-pdf" method="post" enctype="multipart/form-data" class="tool-form">
+        <input type="hidden" name="file_order" id="file-order-input">
+
+        <div class="upload-area">
+            <label for="merge-files-input" class="form-label">
+                <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
+                <h5 class="mt-2">Drag & Drop or Click to Upload</h5>
+                <small class="text-muted">Select at least two PDF files</small>
+            </label>
+            <input class="form-control" type="file" name="files" id="merge-files-input" multiple accept=".pdf">
+        </div>
+        
+        <ul class="file-list mt-3"></ul>
+
+        <div class="d-grid mt-3">
+            <button type="submit" class="btn btn-primary btn-lg">Merge PDFs</button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <script>
+        const form = document.querySelector('.tool-form');
+        const fileInput = form.querySelector('input[type="file"]');
+        const fileList = form.querySelector('.file-list');
+        const uploadArea = form.querySelector('.upload-area');
+        const fileOrderInput = form.querySelector('#file-order-input');
+
+        const updateFileList = () => {
+            fileList.innerHTML = '';
+            for (const file of fileInput.files) {
+                const listItem = document.createElement('li');
+                listItem.className = 'file-list-item';
+                // Store filename in a data attribute to easily retrieve order later
+                listItem.dataset.filename = file.name; 
+                listItem.innerHTML = `<i class="bi bi-grip-vertical me-2"></i> <i class="bi bi-file-earmark-pdf me-2"></i> ${file.name}`;
+                fileList.appendChild(listItem);
+            }
+            // Initialize SortableJS on the list
+            new Sortable(fileList, {
+                animation: 150,
+                ghostClass: 'sortable-ghost'
+            });
+        };
+
+        fileInput.addEventListener('change', updateFileList);
+        
+        // --- Drag and Drop Logic (No changes needed here) ---
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.add('drag-over'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('drag-over'), false);
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            fileInput.files = e.dataTransfer.files;
+            updateFileList();
+        }, false);
+        
+        // --- NEW LOGIC TO SAVE FILE ORDER BEFORE SUBMITTING ---
+        form.addEventListener('submit', (e) => {
+            const listItems = fileList.querySelectorAll('li');
+            const orderedFiles = Array.from(listItems).map(item => item.dataset.filename);
+            
+            // Set the value of the hidden input to a comma-separated list of filenames
+            fileOrderInput.value = orderedFiles.join(',');
+        });
+    </script>
+{% endblock %}

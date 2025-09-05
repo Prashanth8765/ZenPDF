@@ -1,0 +1,194 @@
+{% extends "layout.html" %}
+
+{% block title %}ZenPDF - Home{% endblock %}
+
+{% block head_styles %}
+<style>
+    .tool-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: block;
+        height: 100%; /* Makes cards in the same row equal height */
+    }
+    .tool-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    .tool-card .bi {
+        font-size: 2.5rem;
+        color: #0d6efd;
+    }
+    .site-footer {
+        padding: 1.5rem 0;
+        margin-top: 3rem;
+        background-color: #979ea7ff; /* New dark gray background */
+        text-align: center;
+        color: #000000; /* Lighter text for better contrast */
+        border-radius: 35px;
+        
+        /* --- Styles for full-width breakout --- */
+        position: relative;
+        width: 100vw;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold">ZenPDF</h1>
+    <p class="text-muted">Your complete and powerful PDF toolkit.</p>
+</div>
+
+<!-- Using a responsive grid layout -->
+<div class="row g-4 row-cols-1 row-cols-md-3">
+
+    <!-- Merge PDF -->
+    <div class="col">
+        <a href="{{ url_for('merge_pdf_page') }}" class="tool-card">
+            <i class="bi bi-union"></i>
+            <h5 class="mt-3">Merge PDF</h5>
+            <p class="text-muted small mb-0">Combine multiple PDFs into one.</p>
+        </a>
+    </div>
+
+    <!-- Split PDF -->
+    <div class="col">
+        <a href="{{ url_for('split_pdf_page') }}" class="tool-card">
+            <i class="bi bi-scissors"></i>
+            <h5 class="mt-3">Split PDF</h5>
+            <p class="text-muted small mb-0">Extract pages from a PDF.</p>
+        </a>
+    </div>
+
+    <!-- Compress PDF -->
+    <div class="col">
+        <a href="{{ url_for('compress_pdf_page') }}" class="tool-card">
+            <i class="bi bi-file-earmark-zip"></i>
+            <h5 class="mt-3">Compress PDF</h5>
+            <p class="text-muted small mb-0">Reduce PDF file size.</p>
+        </a>
+    </div>
+
+    <!-- Word to PDF -->
+    <div class="col">
+        <a href="{{ url_for('word_to_pdf_page') }}" class="tool-card">
+            <i class="bi bi-file-earmark-word"></i>
+            <h5 class="mt-3">Word to PDF</h5>
+            <p class="text-muted small mb-0">Convert DOCX to PDF.</p>
+        </a>
+    </div>
+
+    <!-- PDF to Word -->
+    <div class="col">
+        <a href="{{ url_for('pdf_to_word_page') }}" class="tool-card">
+            <i class="bi bi-file-earmark-text"></i>
+            <h5 class="mt-3">PDF to Word</h5>
+            <p class="text-muted small mb-0">Convert PDF to DOCX.</p>
+        </a>
+    </div>
+
+    <!-- Protect PDF -->
+    <div class="col">
+        <a href="{{ url_for('protect_pdf_page') }}" class="tool-card">
+            <i class="bi bi-lock-fill"></i>
+            <h5 class="mt-3">Protect PDF</h5>
+            <p class="text-muted small mb-0">Add a password to a PDF.</p>
+        </a>
+    </div>
+
+    <!-- Unlock PDF -->
+    <div class="col">
+        <a href="{{ url_for('unlock_pdf_page') }}" class="tool-card">
+            <i class="bi bi-unlock-fill"></i>
+            <h5 class="mt-3">Unlock PDF</h5>
+            <p class="text-muted small mb-0">Remove a password from a PDF.</p>
+        </a>
+    </div>
+
+    <!-- Rotate PDF -->
+    <div class="col">
+        <a href="{{ url_for('rotate_pdf_page') }}" class="tool-card">
+            <i class="bi bi-arrow-clockwise"></i>
+            <h5 class="mt-3">Rotate PDF</h5>
+            <p class="text-muted small mb-0">Rotate pages in a PDF.</p>
+        </a>
+    </div>
+
+    <!-- Add Page Numbers -->
+    <div class="col">
+        <a href="{{ url_for('add_page_numbers_page') }}" class="tool-card">
+            <i class="bi bi-hash"></i>
+            <h5 class="mt-3">Add Page Numbers</h5>
+            <p class="text-muted small mb-0">Insert page numbers into a PDF.</p>
+        </a>
+    </div>
+    
+    <!-- PPTX to PDF -->
+    <div class="col">
+        <a href="{{ url_for('pptx_to_pdf') }}" class="tool-card">
+            <i class="bi bi-file-earmark-slides"></i>
+            <h5 class="mt-3">PPTX to PDF</h5>
+            <p class="text-muted small mb-0">Convert PowerPoint presentations to PDF.</p>
+        </a>
+    </div>
+
+    <!-- JPG to PDF -->
+    <div class="col">
+        <a href="{{ url_for('jpg_to_pdf_page') }}" class="tool-card">
+            <i class="bi bi-filetype-jpg"></i>
+            <h5 class="mt-3">JPG to PDF</h5>
+            <p class="text-muted small mb-0">Convert JPG images to PDF.</p>
+        </a>
+    </div>
+
+    <!-- PNG to PDF -->
+    <div class="col">
+        <a href="{{ url_for('png_to_pdf_page') }}" class="tool-card">
+            <i class="bi bi-filetype-png"></i>
+            <h5 class="mt-3">PNG to PDF</h5>
+            <p class="text-muted small mb-0">Convert PNG images to PDF.</p>
+        </a>
+    </div>
+
+    <!-- PDF to JPG -->
+    <div class="col">
+        <a href="{{ url_for('pdf_to_jpg_page') }}" class="tool-card">
+            <i class="bi bi-file-earmark-image"></i>
+            <h5 class="mt-3">PDF to JPG</h5>
+            <p class="text-muted small mb-0">Convert PDF pages to JPG.</p>
+        </a>
+    </div>
+
+    <!-- PDF to PNG -->
+    <div class="col">
+        <a href="{{ url_for('pdf_to_png_page') }}" class="tool-card">
+            <i class="bi bi-file-earmark-image-fill"></i>
+            <h5 class="mt-3">PDF to PNG</h5>
+            <p class="text-muted small mb-0">Convert PDF pages to PNG.</p>
+        </a>
+    </div>
+
+    <!-- Consolidated PNG & JPG Tool -->
+    <div class="col">
+        <a href="{{ url_for('png_jpg_tools_page') }}" class="tool-card">
+            <i class="bi bi-image-alt"></i>
+            <h5 class="mt-3">PNG & JPG</h5>
+            <p class="text-muted small mb-0">Convert images between PNG and JPG.</p>
+        </a>
+    </div>
+
+    <footer class="site-footer">
+        <div class="copyright">
+            <p class="mb-0">Copyright © Prashanth.</p>
+        </div>
+    </footer>
+
+</div>
+{% endblock %}

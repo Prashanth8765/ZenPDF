@@ -1,0 +1,238 @@
+{% extends "layout.html" %}
+
+{% block title %}Interactive PNG & JPG Converter - ZenPDF{% endblock %}
+
+{% block head_styles %}
+<style>
+    /* Main container for the converter tool */
+    .converter-container {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+        padding: 2.5rem;
+        transition: all 0.3s ease;
+    }
+
+    /* Tab navigation for switching between converters */
+    .nav-tabs .nav-link {
+        border: none;
+        border-bottom: 3px solid transparent;
+        color: #6c757d;
+        font-weight: 600;
+        padding: 1rem 1.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .nav-tabs .nav-link.active,
+    .nav-tabs .nav-link:hover {
+        border-bottom-color: #0d6efd;
+        color: #0d6efd;
+        background-color: #f8f9fa;
+    }
+    
+    /* Drag-and-drop file upload area */
+    .file-drop-area {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2.5rem;
+        border: 2px dashed #0d6efd;
+        border-radius: 10px;
+        background-color: #f8f9fa;
+        color: #6c757d;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+        text-align: center;
+    }
+
+    .file-drop-area.dragover {
+        background-color: #e9ecef;
+        border-color: #0b5ed7;
+    }
+
+    .file-drop-area .bi {
+        font-size: 3rem;
+        color: #0d6efd;
+        margin-bottom: 1rem;
+    }
+
+    .file-drop-area input[type="file"] {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    /* File preview area */
+    .file-preview-container {
+        margin-top: 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 1rem;
+    }
+
+    .file-preview {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .file-preview img {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .file-preview .file-name {
+        font-size: 0.75rem;
+        text-align: center;
+        padding: 0.5rem;
+        background: #343a40;
+        color: #fff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Submit button styling */
+    .submit-btn {
+        width: 100%;
+        font-size: 1.1rem;
+        padding: 0.8rem;
+        margin-top: 1.5rem;
+        display: none; /* Hidden by default */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold">Image Converter</h1>
+    <p class="text-muted">A modern, interactive tool for your image conversion needs.</p>
+</div>
+
+<div class="converter-container">
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs" id="converterTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="png-to-jpg-tab" data-bs-toggle="tab" data-bs-target="#png-to-jpg" type="button" role="tab" aria-controls="png-to-jpg" aria-selected="true">PNG to JPG</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="jpg-to-png-tab" data-bs-toggle="tab" data-bs-target="#jpg-to-png" type="button" role="tab" aria-controls="jpg-to-png" aria-selected="false">JPG to PNG</button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="converterTabsContent">
+        <!-- PNG to JPG Converter Pane -->
+        <div class="tab-pane fade show active" id="png-to-jpg" role="tabpanel" aria-labelledby="png-to-jpg-tab">
+            <form action="{{ url_for('png_to_jpg') }}" method="post" enctype="multipart/form-data" class="converter-form" data-accept=".png">
+                <div class="file-drop-area mt-4">
+                    <i class="bi bi-cloud-arrow-up-fill"></i>
+                    <p class="mb-0"><strong>Drag & drop your PNG files here</strong><br>or click to select files</p>
+                    <input type="file" name="files" accept=".png" multiple>
+                </div>
+                <div class="file-preview-container"></div>
+                <button type="submit" class="btn btn-primary btn-lg submit-btn">
+                    <i class="bi bi-gear-fill me-2"></i>Convert to JPG
+                </button>
+            </form>
+        </div>
+
+        <!-- JPG to PNG Converter Pane -->
+        <div class="tab-pane fade" id="jpg-to-png" role="tabpanel" aria-labelledby="jpg-to-png-tab">
+            <form action="{{ url_for('jpg_to_png') }}" method="post" enctype="multipart/form-data" class="converter-form" data-accept=".jpg, .jpeg">
+                <div class="file-drop-area mt-4">
+                    <i class="bi bi-cloud-arrow-up-fill"></i>
+                    <p class="mb-0"><strong>Drag & drop your JPG files here</strong><br>or click to select files</p>
+                    <input type="file" name="files" accept=".jpg, .jpeg" multiple>
+                </div>
+                <div class="file-preview-container"></div>
+                <button type="submit" class="btn btn-primary btn-lg submit-btn">
+                    <i class="bi bi-gear-fill me-2"></i>Convert to PNG
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const forms = document.querySelectorAll('.converter-form');
+
+    forms.forEach(form => {
+        const fileInput = form.querySelector('input[type="file"]');
+        const dropArea = form.querySelector('.file-drop-area');
+        const previewContainer = form.querySelector('.file-preview-container');
+        const submitBtn = form.querySelector('.submit-btn');
+
+        // --- Drag and Drop Event Handlers ---
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.classList.add('dragover');
+        });
+
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('dragover');
+        });
+
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            fileInput.files = files; // Assign dropped files to the input
+            handleFiles(files);
+        });
+        
+        // Trigger file input click when the drop area is clicked
+        dropArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Handle file selection from the input
+        fileInput.addEventListener('change', () => {
+            handleFiles(fileInput.files);
+        });
+
+        // --- File Handling and Preview Function ---
+        function handleFiles(files) {
+            previewContainer.innerHTML = ''; // Clear previous previews
+            if (files.length > 0) {
+                submitBtn.style.display = 'block'; // Show the convert button
+                
+                for (const file of files) {
+                    // Create a preview element for each image
+                    const previewElement = document.createElement('div');
+                    previewElement.classList.add('file-preview');
+                    
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.onload = () => {
+                        URL.revokeObjectURL(img.src); // Free up memory
+                    };
+                    
+                    const fileName = document.createElement('div');
+                    fileName.classList.add('file-name');
+                    fileName.textContent = file.name;
+                    
+                    previewElement.appendChild(img);
+                    previewElement.appendChild(fileName);
+                    previewContainer.appendChild(previewElement);
+                }
+            } else {
+                submitBtn.style.display = 'none'; // Hide button if no files
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+
+{% block title %}PDF to Word - ZenPDF{% endblock %}
+
+{% block head_styles %}
+<style>
+    .upload-area { border: 2px dashed #e0e0e0; padding: 40px; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
+    .upload-area:hover { background-color: #f8f9fa; }
+    .upload-area.drag-over { background-color: #e9ecef; border-color: #0d6efd; }
+    .upload-area .form-label { display: block; margin-bottom: 0; cursor: pointer; }
+    .upload-area .form-control { display: none; }
+    .file-list { list-style: none; padding: 0; margin-top: 1rem; max-height: 150px; overflow-y: auto; }
+    .file-list-item { background-color: #f8f9fa; border: 1px solid #eee; padding: 0.5rem 1rem; border-radius: 5px; margin-bottom: 0.5rem; font-size: 0.9rem; }
+    .btn-primary { box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3); }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3">PDF to Word Converter</h2>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back to Home
+        </a>
+    </div>
+
+    <form action="/pdf-to-word" method="post" enctype="multipart/form-data" class="tool-form">
+        <div class="upload-area">
+           <label for="pdf-word-files-input" class="form-label">
+                <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
+               <h5 class="mt-2">Drag & Drop or Click to Upload</h5>
+               <small class="text-muted">Select PDFs to convert to Word</small>
+           </label>
+           <input class="form-control" type="file" name="files" id="pdf-word-files-input" multiple accept=".pdf">
+       </div>
+       <ul class="file-list mt-3"></ul>
+       <div class="d-grid mt-3">
+           <button type="submit" class="btn btn-primary btn-lg">Convert to Word</button>
+       </div>
+   </form>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // JavaScript for drag-and-drop and file list display
+        const form = document.querySelector('.tool-form');
+        const fileInput = form.querySelector('input[type="file"]');
+        const fileList = form.querySelector('.file-list');
+        const uploadArea = form.querySelector('.upload-area');
+
+        const updateFileList = () => {
+            fileList.innerHTML = '';
+            for (const file of fileInput.files) {
+                const listItem = document.createElement('li');
+                listItem.className = 'file-list-item';
+                listItem.innerHTML = `<i class="bi bi-file-earmark-pdf me-2"></i> ${file.name}`;
+                fileList.appendChild(listItem);
+            }
+        };
+
+        fileInput.addEventListener('change', updateFileList);
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.add('drag-over'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('drag-over'), false);
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            fileInput.files = e.dataTransfer.files;
+            updateFileList();
+        }, false);
+    </script>
+{% endblock %}

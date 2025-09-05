@@ -1,0 +1,6 @@
+Flask
+Pillow
+pdfkit
+aspose-slides
+JPype1
+gunicorn

@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block title %}Unlock PDF - ZenPDF{% endblock %}
+{% block head_styles %}<style>.upload-area{border:2px dashed #e0e0e0;padding:40px;border-radius:8px;text-align:center;cursor:pointer;transition:all .3s ease}.upload-area:hover{background-color:#f8f9fa}.upload-area.drag-over{background-color:#e9ecef;border-color:#0d6efd}.upload-area .form-label{display:block;margin-bottom:0;cursor:pointer}.upload-area .form-control{display:none}.file-list{list-style:none;padding:0;margin-top:1rem;max-height:150px;overflow-y:auto}.file-list-item{background-color:#f8f9fa;border:1px solid #eee;padding:.5rem 1rem;border-radius:5px;margin-bottom:.5rem;font-size:.9rem}.btn-primary{box-shadow:0 4px 15px rgba(13,110,253,.3)}</style>{% endblock %}
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3">Unlock PDF</h2>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back to Home</a>
+    </div>
+    <p>Remove the password from a protected PDF file.</p>
+    <form action="/unlock-pdf" method="post" enctype="multipart/form-data" class="tool-form">
+        <div class="mb-3">
+            <label for="password" class="form-label">Current Password:</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <div class="upload-area">
+            <label for="unlock-file-input" class="form-label">
+                <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
+                <h5 class="mt-2">Drag & Drop or Click to Upload</h5>
+                <small class="text-muted">Select a single PDF file</small>
+            </label>
+            <input class="form-control" type="file" name="file" id="unlock-file-input" accept=".pdf" required>
+        </div>
+        <ul class="file-list mt-3"></ul>
+        <div class="d-grid mt-3">
+            <button type="submit" class="btn btn-primary btn-lg">Unlock PDF</button>
+        </div>
+    </form>
+{% endblock %}
+{% block scripts %}<script>const form=document.querySelector(".tool-form"),fileInput=form.querySelector('input[type="file"]'),fileList=form.querySelector(".file-list"),uploadArea=form.querySelector(".upload-area"),updateFileList=()=>{fileList.innerHTML="",fileInput.files.length>0&&(file=fileInput.files[0],(listItem=document.createElement("li")).className="file-list-item",listItem.innerHTML=`<i class="bi bi-file-earmark-pdf me-2"></i> ${file.name}`,fileList.appendChild(listItem))};fileInput.addEventListener("change",updateFileList),["dragenter","dragover","dragleave","drop"].forEach(e=>{uploadArea.addEventListener(e,t=>{t.preventDefault(),t.stopPropagation()},!1)}),["dragenter","dragover"].forEach(e=>{uploadArea.addEventListener(e,()=>uploadArea.classList.add("drag-over"),!1)}),["dragleave","drop"].forEach(e=>{uploadArea.addEventListener(e,()=>uploadArea.classList.remove("drag-over"),!1)}),uploadArea.addEventListener("drop",e=>{fileInput.files=e.dataTransfer.files,updateFileList()},!1);</script>{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "layout.html" %}
+
+{% block title %}PowerPoint to PDF Converter - ZenPDF{% endblock %}
+
+{% block head_styles %}
+<style>
+    .file-drop-area {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2.5rem;
+        border: 2px dashed #0d6efd;
+        border-radius: 10px;
+        background-color: #f8f9fa;
+        color: #6c757d;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    .file-drop-area.dragover {
+        background-color: #e9ecef;
+    }
+    .file-drop-area .bi {
+        font-size: 3rem;
+        color: #0d6efd;
+        margin-bottom: 1rem;
+    }
+    .file-drop-area input[type="file"] {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+    #file-name-display {
+        margin-top: 1.5rem;
+        font-weight: 600;
+        color: #333;
+        display: none; /* Hidden by default */
+    }
+    .submit-btn {
+        display: none; /* Hidden by default */
+        margin-top: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    
+    <!-- This is the interactive alert section -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show shadow-lg" role="alert" style="border-left: 6px solid; border-radius: 8px; margin-bottom: 2rem;">
+              <div class="d-flex">
+                  <div class="flex-shrink-0 me-3">
+                      <i class="bi bi-exclamation-triangle-fill" style="font-size: 2rem;"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                      <h4 class="alert-heading">{{ message.title }}</h4>
+                      <p>{{ message.message }}</p>
+                      {% if message.suggestion %}
+                      <hr>
+                      <p class="mb-0 small">{{ message.suggestion | safe }}</p>
+                      {% endif %}
+                  </div>
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">PowerPoint to PDF Converter</h1>
+        <p class="text-muted">Upload your .ppt or .pptx file to convert it to a PDF document.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <form action="{{ url_for('pptx_to_pdf') }}" method="post" enctype="multipart/form-data">
+                <div class="file-drop-area" id="drop-area">
+                    <i class="bi bi-cloud-arrow-up-fill"></i>
+                    <p class="mb-0"><strong>Drag & drop your presentation here</strong><br>or click to select a file</p>
+                    <input type="file" name="file" id="file-input" accept=".ppt, .pptx" required>
+                </div>
+                <div id="file-name-display" class="text-center"></div>
+                <div class="d-grid">
+                    <button type="submit" id="submit-btn" class="btn btn-primary btn-lg submit-btn">
+                        <i class="bi bi-gear-fill me-2"></i>Convert to PDF
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('file-input');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    const submitBtn = document.getElementById('submit-btn');
+
+    dropArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropArea.classList.add('dragover');
+    });
+
+    dropArea.addEventListener('dragleave', () => {
+        dropArea.classList.remove('dragover');
+    });
+
+    dropArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            updateFileName(files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            updateFileName(fileInput.files[0]);
+        }
+    });
+    
+    function updateFileName(file) {
+        fileNameDisplay.textContent = `Selected File: ${file.name}`;
+        fileNameDisplay.style.display = 'block';
+        submitBtn.style.display = 'block';
+    }
+});
+</script>
+{% endblock %}
